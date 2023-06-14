@@ -1,10 +1,10 @@
 //Criar elemento que irá roda o jogo 
-let canvas = document.getElementById("snake");
+let canvas = document.getElementById("gamesnake");
 let context = canvas.getContext("2d");
 let box = 32;
 
 //Criar cobrinhas como vetor,já que ela vai ser uma série de coordenadas, que quando pintadas criam os quadradinhos 
-let snake = []
+let snake = [];
 
 // Inicio da cobrinha 
 snake[0] = {
@@ -13,7 +13,7 @@ snake[0] = {
 }
 
 //Direção
-let direction = " right";
+let direction = "right"
 
 // Comida 
 let food = {
@@ -23,9 +23,23 @@ let food = {
 
 //Função para criar o Background
 function criarBG() {
-    context.fillStyle = "lightgreen";
+    context.fillStyle = "pink";
     // Desenhar o retângulo usando x e y e a largura e altura setadas 
-    context.fillStyle(0, 0, 16 * box, 16 * box);
+    context.fillRect(0, 0, 16 * box, 16 * box);
+}
+
+//Fução para criar a cobrinha
+function criarCobrinha() {
+    for (i = 0; i < snake.length; i++) {
+        context.fillStyle = "white";
+        context.fillRect(snake[i].x, snake[i].y, box, box);
+    }
+}
+
+//Função para desenhar a comida
+function drawFood() {
+    context.fillStyle = "purple";
+    context.fillRect(food.x, food.y, box, box)
 }
 
 //Quando um evento acontece, detecta e chama a função update 
@@ -55,6 +69,14 @@ function iniciarJogo() {
     if (snake[0].y < 0 && direction == "up") {
         snake[0].y = 16 * box;
     }
+
+    for (i = 1; i < snake.length; i++) {
+        if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) {
+            clearInterval(jogo);
+            alert('Game Over :(');
+        }
+    }
+
     criarBG();
     criarCobrinha();
     drawFood();
@@ -67,6 +89,7 @@ function iniciarJogo() {
     if (direction == "up") snakeY -= box;
     if (direction == "down") snakeY += box;
 
+
     if (snakeX != food.x || snakeY != food.y) {
         snake.pop(); //pop tira o ultimo elemento da lista 
     } else {
@@ -74,10 +97,35 @@ function iniciarJogo() {
         food.y = Math.floor(Math.random() * 15 + 1) * box;
     }
 
-    let newHead ={
-         x: snakeX,
-         y: snakeY
+    let newHead = {
+        x: snakeX,
+        y: snakeY
     }
+snake.unshift(newHead);
 
-    snake.unshift(newHead); //método unshift adiciona como primeiro quadradinho da cobrinha
+if (pontos != snake.length - 1) {
+    pontos++;
+    document.getElementById('pontuacao').innerText = pontos;
 }
+
+if (pontos == pontosProximaFase) {
+    fase++;
+    pontosProximaFase = pontosProximaFase + pontosPorFase;
+
+    time = time - (pontosPorFase * 10);
+
+    clearInterval(jogo);
+    jogo = setInterval(iniciarJogo, time);
+
+    document.getElementById('fase').innerText = fase;
+    document.getElementById('velocidade').innerText = time;
+}
+}
+
+let time = 200;
+let jogo = setInterval(iniciarJogo, time);
+
+let pontos = 0;
+let pontosPorFase = 2
+let pontosProximaFase = pontosPorFase;
+let fase = 1;
